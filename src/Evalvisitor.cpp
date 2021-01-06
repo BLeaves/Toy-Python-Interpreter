@@ -62,8 +62,8 @@ antlrcpp::Any EvalVisitor::visitExpr_stmt(Python3Parser::Expr_stmtContext *ctx) 
 	}
 	else{
 		if( ctx -> ASSIGN() ){
-			for(auto x:T){
-				x = visit( T.back() ).as<List>() ;
+			for(auto &x:T){
+				visit( x ).as<List>() = visit( T.back() ).as<List>() ;
 			}
 		}
 		else return visitChildren( ctx );
@@ -242,7 +242,7 @@ antlrcpp::Any EvalVisitor::visitAtom_expr(Python3Parser::Atom_exprContext *ctx) 
 		if( visit( ctx -> atom() ).is<std::string>() ){
 			std::string s=visit( ctx -> atom() ).as<std::string>();
 			if( Func::nw ->n_value[ s ] == nullptr) 
-				Func::nw -> add_ele( s , Value() );
+				Func::nw -> add_ele( s , Value() , Func::nw->n_value);
 			
 			return *Func::nw -> n_value[ s ];
 		}
@@ -274,7 +274,7 @@ antlrcpp::Any EvalVisitor::visitTestlist(Python3Parser::TestlistContext *ctx) {
 			std::string s=visit(x).as<std::string>();
 			if( Func::nw ->n_value[ s ] ) lst -> v.push_back( Func::nw ->n_value[ s ] );
 			else{
-				Func::nw -> add_ele( s , Value() );
+				Func::nw -> add_ele( s , Value() , Func::nw->n_value );
 				lst -> v.push_back( Func::nw ->n_value[ s ] );
 			}
 		}
