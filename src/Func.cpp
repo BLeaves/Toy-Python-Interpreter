@@ -8,6 +8,8 @@
 
 
 class Func{
+    friend class EvalVisitor;
+
     static Func* nw;
     
     std::map< std::string , Value* > m_para,n_value;
@@ -47,7 +49,10 @@ antlrcpp::Any Func::run( Python3Parser::ArglistContext *ctx_al ){
     nw = this;
 
     //init n_value
-    auto a=ctx_al -> argument();
+    auto a=tx_al -> argument();
+    if(ctx_al -> COMMA()) a = c;
+    else a.push_back( ctx_al -> argument() );
+    //
     for(auto x:m_para)
         n_value[ x.first ] = new Value( *x.second );
     
@@ -59,7 +64,7 @@ antlrcpp::Any Func::run( Python3Parser::ArglistContext *ctx_al ){
     else{
         auto nm = ctx->parameters()->typedargslist()->tfpdef();
         for(int i = 0;i < a.size() ; i ++ ){
-           add_ele( nm[i]->getText() , EvalVisitor().visit( a[i]->test()[0] ).as<Value>() , n_value );
+           add_ele( nm[i]->getText() , EvalVisitor().visit( a[i]->test() ).as<Value>() , n_value );
         } 
     }
 

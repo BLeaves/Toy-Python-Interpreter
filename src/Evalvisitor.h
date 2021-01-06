@@ -10,6 +10,8 @@
 class EvalVisitor: public Python3BaseVisitor {
     friend class Func;
 
+    static std::map< std::string ,Func* > m_func;
+
     virtual antlrcpp::Any visitFile_input(Python3Parser::File_inputContext *ctx) override;
     virtual antlrcpp::Any visitFuncdef(Python3Parser::FuncdefContext *ctx) override;
     virtual antlrcpp::Any visitParameters(Python3Parser::ParametersContext *ctx) override;

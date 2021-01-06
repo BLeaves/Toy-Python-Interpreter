@@ -44,7 +44,7 @@ UI::UI(){ v.clear();}
 UI::UI(const std::string &num){
     int len=num.length();
 
-    for(int i=0;i<len;i++)
+    for(int i=0;i<len and isdigit(num[i]);i++)
         v.push_back(num[i]-'0');
 
     std::reverse( v.begin() , v.end() );
