@@ -6,15 +6,17 @@
 
 
 antlrcpp::Any EvalVisitor::visitFile_input(Python3Parser::File_inputContext *ctx) {
-	m_func[ "" ] = new Func();
+	Func::mn = new Func();
+	Func::nw = Func::mn;
 
 	visitChildren(ctx);
 	
-	delete m_func[""];
+	delete Func::mn;
+	//clear m_func
 }
 
 antlrcpp::Any EvalVisitor::visitFuncdef(Python3Parser::FuncdefContext *ctx) {
-	return visitChildren(ctx);
+	m_func[ ctx->NAME()->getText() ] = new Func( ctx );
 }
 
 antlrcpp::Any EvalVisitor::visitParameters(Python3Parser::ParametersContext *ctx) {
@@ -34,7 +36,7 @@ antlrcpp::Any EvalVisitor::visitStmt(Python3Parser::StmtContext *ctx) {
 }
 
 antlrcpp::Any EvalVisitor::visitSimple_stmt(Python3Parser::Simple_stmtContext *ctx) {
-	return visitChildren(ctx);
+	return visit(ctx -> small_stmt());
 }
 
 antlrcpp::Any EvalVisitor::visitSmall_stmt(Python3Parser::Small_stmtContext *ctx) {
@@ -61,7 +63,7 @@ antlrcpp::Any EvalVisitor::visitExpr_stmt(Python3Parser::Expr_stmtContext *ctx) 
 	else{
 		if( ctx -> ASSIGN() ){
 			for(auto x:T){
-				x = 
+				x = visit( T.back() ).as<List>() ;
 			}
 		}
 		else return visitChildren( ctx );
@@ -206,8 +208,6 @@ antlrcpp::Any EvalVisitor::visitTerm(Python3Parser::TermContext *ctx) {
 	auto F = ctx->factor();
 	auto O = ctx->muldivmod_op();
 
-
-
 	Value ans;
 
 	
@@ -244,7 +244,7 @@ antlrcpp::Any EvalVisitor::visitAtom_expr(Python3Parser::Atom_exprContext *ctx) 
 			if( Func::nw ->n_value[ s ] == nullptr) 
 				Func::nw -> add_ele( s , Value() );
 			
-			return Func::nw -> n_value[ s ];
+			return *Func::nw -> n_value[ s ];
 		}
 	}
 	return visitChildren(ctx);

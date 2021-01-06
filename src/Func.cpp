@@ -11,6 +11,7 @@ class Func{
     friend class EvalVisitor;
 
     static Func* nw;
+    static Func* mn;
     
     std::map< std::string , Value* > m_para,n_value;
     Python3Parser::FuncdefContext  *ctx;
@@ -74,7 +75,7 @@ antlrcpp::Any Func::run( Python3Parser::ArglistContext *ctx_al ){
     }
     catch(antlrcpp::Any &x){
         clear_mp( n_value );
-        nw = nullptr;
+        nw = mn;
         return x;
     }
     return ;
