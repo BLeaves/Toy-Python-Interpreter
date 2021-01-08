@@ -17,7 +17,7 @@ private:
 
 public:
     UI();
-
+    UI(const UI &x) = default;
     UI(const std::string &num);
 
     bool operator==(const UI &x) ;
@@ -29,7 +29,7 @@ public:
 
     //<-------------------------->
 
-    UI operator<<(const int &x) ;
+    UI operator<<(const int &x)const;
     UI operator+(const UI &x) ;
     UI operator-(const UI &x) ;
     UI operator*(const int &x) ;

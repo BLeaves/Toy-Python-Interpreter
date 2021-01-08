@@ -64,9 +64,9 @@ bool UI::operator>=(const UI &x) {
 
 //<-------------------------------->
 
-UI UI::operator<<(const int &x) {
-    clear_0();
+UI UI::operator<<(const int &x) const {
     UI ans=(*this);
+    ans.clear_0();
 
     int sz=ans.v.size();
     ans.v.resize( sz+x );
@@ -171,23 +171,22 @@ UI UI::operator*(const UI &x) {
     return ans;
 }
 
-UI UI::operator/(UI x) {
+UI UI::operator/(const UI &x) {
     clear_0();
-    UI ans,A;
-    A=(*this);
+    UI ans,A = *this;
 
-    int ad=0;
-    for(int i=(int)v.size() ; i>=0 ; i-- ){
-        ad=0;
-        while( (x<<i) <= A ){
-            A=A-(x<<i);
+    for(int i=(int)v.size() - 1 ; i>=0 ; i-- ){
+        A.v.insert(A.v.begin(), v[i]);
+        A.clear_0();
+        int ad=0;
+        while( A >= x ){
+            A = A - x;
             ad++;
         }
         ans.v.push_back(ad);
     }
 
     std::reverse( ans.v.begin() , ans.v.end() );
-    if(ans.v.empty()) ans.v.push_back(0);
     ans.clear_0();
 
     return ans;
@@ -195,7 +194,16 @@ UI UI::operator/(UI x) {
 
 UI UI::operator%(const UI &x) {
     clear_0();
-    return (*this) - ( (*this)/x ) * x;
+    UI ans = *this;
+
+    for(int i=(int)v.size() - 1 ; i>=0 ; i-- ){
+        ans.v.insert(ans.v.begin(), v[i]);
+        ans.clear_0();
+        while( ans >= x )
+            ans = ans - x;
+    }
+    ans.clear_0();
+    return ans;
 }
 
 void UI::clear_0(){
