@@ -9,7 +9,7 @@ class Value{
 
 enum Typename{None,Bool,Int,Float,Str};
 
-static const double exp=1e-6;
+static constexpr double exp=1e-6;
 
 private:
     Typename tpnm;
