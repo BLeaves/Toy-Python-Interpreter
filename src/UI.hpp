@@ -13,6 +13,8 @@ class UI {
 private:
     std::vector<int> v;
 
+    bool iszero();
+
 public:
     UI();
 

@@ -12,7 +12,7 @@ int Value::comp(const Value &rhs)const{
         int tmp= trans_i().pi->comp( * (rhs.trans_i().pi) ) ;
         if(tmp!=0) return tmp;
     }
-    
+
     double x1=small_value(),x2=rhs.small_value();
     if( fabs(x1-x2) < exp ) return 0;
     return x1 < x2 ? (-1) : 1 ;
@@ -41,7 +41,7 @@ Value& Value::operator=(const Value &vl){
 Value Value::operator+(const Value &rhs)const{
     if( tpnm == Str ) return Value( (*ps) + (* (rhs.ps) ) );
     if( tpnm == Float || rhs.tpnm == Float ) return Value( small_value() + rhs.small_value() );
-    
+
     Value ans=trans_i();
     (* ans.pi) = (* ans.pi) + (* rhs.trans_i().pi) ;
     return ans;
@@ -49,19 +49,19 @@ Value Value::operator+(const Value &rhs)const{
 
 Value Value::operator-(const Value &rhs)const{
     if( tpnm == Float || rhs.tpnm == Float ) return Value( small_value() - rhs.small_value() );
-    
+
     Value ans=trans_i();
     (* ans.pi) = (* ans.pi) - (* rhs.trans_i().pi) ;
     return ans;
 }
-    
+
 Value Value::operator*(const Value &rhs)const{
     if( tpnm == Str ) return Value( *this ).mtpl_s( rhs.small_value() );
     if( rhs.tpnm == Str ) return Value( rhs ).mtpl_s( small_value() );
-    
-    if( tpnm == Float || rhs.tpnm == Float ) 
+
+    if( tpnm == Float || rhs.tpnm == Float )
         return Value( small_value() * rhs.small_value() );
-    
+
     Value ans=trans_i();
     (* ans.pi) = (* ans.pi) * (* rhs.trans_i().pi) ;
     return ans;
@@ -73,7 +73,7 @@ Value Value::operator/(const Value &rhs)const{
 
 Value Value::divide(const Value &rhs)const{
     Value ans= this->trans_i();
-    (*ans.pi) = (*ans.pi)/(*rhs.pi);
+    (*ans.pi) = (*ans.pi)/(*(rhs.trans_i().pi));
     return ans;
 }
 
@@ -139,7 +139,7 @@ bool Value:: operator!=(const Value &rhs)const{
 
 Value Value::trans_b()const{
     if(tpnm == Bool) return (*this);
-    if(tpnm == Int) return Value( pi->sign != 0 );
+    if(tpnm == Int) return Value( *pi != I() );
     if(tpnm == Float) return Value( fabs(f) < exp );
     if(tpnm == None) return Value( false );
     return Value( (*ps) == "" );
@@ -148,7 +148,7 @@ Value Value::trans_b()const{
 Value Value::trans_i()const{
     if(tpnm == Bool) return Value( I( b?"1":"0" ) );
     if(tpnm == Int) return (*this);
-    if(tpnm == Float) return Value( std::to_string( int(f) ) );
+    if(tpnm == Float) return Value( I(std::to_string( (long long)(f) )) );
     return Value( I( *ps ) );
 }
 
@@ -160,10 +160,10 @@ Value Value::trans_f()const{
 }
 
 Value Value::trans_s()const{
-    if(tpnm == Bool) return Value( b ? "True" : "False" );
+    if(tpnm == Bool) return Value( b ? std::string("True") : std::string("False") );
     if(tpnm == Int) return Value( pi->str() );
     if(tpnm == Float) return Value( std::to_string( f ) );
-    if(tpnm == None) return Value( "None" );
+    if(tpnm == None) return Value( std::string("None") );
     return (*this);
 }
 

@@ -1,5 +1,9 @@
 #include "I.hpp"
 
+void I::check() {
+    if (ui.iszero()) sign = 1;
+}
+
 int I::comp(const I &rhs){
     if( (*this) == rhs ) return 0;
     if( (*this) < rhs) return -1;
@@ -12,26 +16,31 @@ I::I(): ui("0") {
 
 I::I(const std::string &num){
     sign=1;
+    if(num.empty()) return;
     if(num[0]=='-') sign=-1;
-
     if(num[0]=='-' || num[0]=='+') ui = UI( num.substr(1) );
     else ui = UI(num);
+    check();
 }
 
 bool I::operator==(const I &x) {
+    check();
     return sign==x.sign && ui==x.ui ;
 }
 
 bool I::operator!=(const I &x) {
+    check();
     return sign!=x.sign || ui!=x.ui;
 }
 
 bool I::operator<(const I &x) {
+    check();
     if(sign != x.sign) return sign<x.sign;
     return sign>0 ? (ui<x.ui) : (ui>x.ui) ;
 }
 
 bool I::operator>(const I &x) {
+    check();
     if(sign != x.sign) return sign>x.sign;
     return sign<0 ? (ui<x.ui) : (ui>x.ui) ;
 }
@@ -54,7 +63,7 @@ I I::operator+(const I &x) {
         ans.sign=ui>x.ui?sign:-sign;
         ans.ui=ui-x.ui;
     }
-
+    check();
     return ans;
 }
 
@@ -66,7 +75,7 @@ I I::operator-(const I &x) {
         ans.sign=ui>x.ui?sign:-sign;
         ans.ui=ui-x.ui;
     }
-
+    check();
     return ans;
 }
 
@@ -76,6 +85,7 @@ I I::operator*(const I &x) {
     ans.sign=sign*x.sign;
     ans.ui=ui*x.ui;
 
+    check();
     return ans;
 }
 
@@ -89,11 +99,14 @@ I I::operator/(const I &x) {
         ans.ui= ans.ui + UI("1") ;
     }
 
+    check();
     return ans;
 }
 
 I I::operator%(const I &x) {
-    return (*this) - ( (*this)/x ) * x;
+    auto ans = (*this) - ( (*this)/x ) * x;
+    ans.check();
+    return ans;
 }
 
 std::string I::str(){

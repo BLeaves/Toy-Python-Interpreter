@@ -7,15 +7,15 @@ Func* Func::mn;
 extern EvalVisitor visitor;
 
 Func::Func(Python3Parser::FuncdefContext*  _ctx):ctx(_ctx){
-    auto nm = ctx->parameters()->typedargslist()->tfpdef();
-    auto vl = ctx->parameters()->typedargslist()->test();
+    auto typeargs = ctx->parameters()->typedargslist();
+    auto nm = typeargs ? typeargs->tfpdef() : std::vector<Python3Parser::TfpdefContext*>();
+    auto vl = typeargs ? typeargs->test() : std::vector<Python3Parser::TestContext*>();
 
-    for(int i = nm.size() - vl.size() - 1;i >= 0;i --)
-        add_ele(  nm[i]->getText()  , Value() , m_para);
+    for(int i = int(nm.size()) - int(vl.size()) - 1;i >= 0;i --)
+        m_para[ nm[i]->getText() ] = new Value();
 
-    for(int i = nm.size() - vl.size() ;i < nm.size();i ++)
-        add_ele(  nm[i]->getText()  , visitor.visit( vl[ i - vl.size() ] ).as<Value>() , m_para);
-    
+    for(int i = int(nm.size() - vl.size()) ;i < nm.size();i ++)
+        add_ele(  nm[i]->getText()  , visitor.visit( vl[ i - (nm.size() - vl.size()) ] ).as<Value>() , m_para);
 }
 
 void Func::clear_mp(std::map< std::string , Value* > &mp){
@@ -24,36 +24,33 @@ void Func::clear_mp(std::map< std::string , Value* > &mp){
 }
 
 antlrcpp::Any Func::run( Python3Parser::ArglistContext *ctx_al ){
-    nw = this;
-
     //init n_value
-    auto a=ctx_al -> argument();
-    //
     for(auto x:m_para)
         n_value[ x.first ] = new Value( *x.second );
-    
-    if(a[0] -> ASSIGN() ){
-        for(auto x:a){
-            add_ele( x->test()[0]->getText() , visitor.visit( x->test()[1] ).as<Value>() , n_value );
-        }
-    }
-    else{
-        auto nm = ctx->parameters()->typedargslist()->tfpdef();
-        for(int i = 0;i < a.size() ; i ++ ){
-           add_ele( nm[i]->getText() , visitor.visit( a[i]->test()[0] ).as<Value>() , n_value );
-        } 
-    }
 
+    //
+    auto a= ctx_al ? ctx_al -> argument() : std::vector<Python3Parser::ArgumentContext*>();
+    auto typeargs = ctx->parameters()->typedargslist();
+    auto nm = typeargs ? typeargs->tfpdef() : std::vector<Python3Parser::TfpdefContext*>();
+    int i = 0;
+    for(;i < a.size() and a[i]->ASSIGN() == nullptr ; i ++ )
+        add_ele( nm[i]->getText() , visitor.visit( a[i]->test()[0] ).as<Value>() , n_value );
+    for(;i < a.size(); i ++)
+        add_ele( a[i]->test()[0]->getText() , visitor.visit( a[i]->test()[1] ).as<Value>() , n_value );
 
+    auto tmp = nw;
+    nw = this;
     try{
         visitor.visit( ctx -> suite() );
     }
-    catch(antlrcpp::Any &x){
+    catch(const antlrcpp::Any &x){
         clear_mp( n_value );
-        nw = mn;
+        nw = tmp;
         return x;
     }
-    return Value();
+    nw = tmp;
+
+    return std::vector<Value>(1);
 }
 
 void Func::add_ele(const std::string &Name, const Value &x , std::map< std::string , Value* > &mp){
@@ -62,8 +59,11 @@ void Func::add_ele(const std::string &Name, const Value &x , std::map< std::stri
 }
 
 Value* Func::getptr(const std::string &nm){
-    if( nw->n_value[ nm ] ) return nw->n_value[ nm ];
-    return n_value[ nm ];
+    auto p = n_value.find(nm);
+    if( p != n_value.end() ) return p->second;
+    auto q = mn->n_value.find(nm);
+    if( q != mn->n_value.end() ) return q->second;
+    return n_value[nm] = new Value();
 }
 
 

@@ -5,7 +5,11 @@
 #include <cmath>
 #include "I.hpp"
 
+class EvalVisitor;
+
 class Value{
+
+    friend class EvalVisitor;
 
 enum Typename{None,Bool,Int,Float,Str};
 
@@ -27,10 +31,10 @@ private:
         while(times--){ ans += (*ps);}
 
         return ans;
-    }  
+    }
 
     int comp(const Value &rhs)const;
-    
+
 
 public:
     double small_value()const;

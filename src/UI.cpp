@@ -2,6 +2,11 @@
 
 UI::UI(){ v.clear();}
 
+bool UI::iszero() {
+    clear_0();
+    return v.empty();
+}
+
 UI::UI(const std::string &num){
     int len=num.length();
 
@@ -9,6 +14,7 @@ UI::UI(const std::string &num){
         v.push_back(num[i]-'0');
 
     std::reverse( v.begin() , v.end() );
+    clear_0();
 }
 
 bool UI::operator==(const UI &x) {
@@ -146,9 +152,9 @@ UI UI::operator*(const UI &x) {
     clear_0();
     UI ans("0");
 
-    ans.v.resize( x.v.size() + v.size() - 1 );
-    for(int i=v.size()-1;i>=0;i--)
-        for(int j=x.v.size()-1;j>=0;j--)
+    ans.v.resize( std::max(int(x.v.size() + v.size()) - 1, 0) );
+    for(int i=int(v.size())-1;i>=0;i--)
+        for(int j=int(x.v.size())-1;j>=0;j--)
             ans.v[i+j]+=v[i]*x.v[j];
 
     int ad=0;

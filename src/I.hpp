@@ -14,6 +14,7 @@ private:
     UI ui;
 
     int comp(const I &rhs);
+    void check();
 public:
     I();
 
