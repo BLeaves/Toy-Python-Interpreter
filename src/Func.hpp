@@ -5,6 +5,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "Type.hpp"
 #include "List.hpp"
 #include "Python3BaseVisitor.h"
 
@@ -26,14 +27,11 @@ public:
 
     void add_ele(const std::string &Name, const Value &x , std::map< std::string , Value* > &mp);
 
+    Value* getptr(const std::string &nm);
+
     ~Func();
 };
 
-
-void Func::clear_mp(std::map< std::string , Value* > &mp){
-    for(auto pr:mp) delete pr.second;
-    mp.clear();
-}
 
 
 #endif

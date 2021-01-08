@@ -18,6 +18,11 @@ Func::Func(Python3Parser::FuncdefContext*  _ctx):ctx(_ctx){
     
 }
 
+void Func::clear_mp(std::map< std::string , Value* > &mp){
+    for(auto pr:mp) delete pr.second;
+    mp.clear();
+}
+
 antlrcpp::Any Func::run( Python3Parser::ArglistContext *ctx_al ){
     nw = this;
 
@@ -54,6 +59,11 @@ antlrcpp::Any Func::run( Python3Parser::ArglistContext *ctx_al ){
 void Func::add_ele(const std::string &Name, const Value &x , std::map< std::string , Value* > &mp){
     if( mp[ Name ] ) delete mp[Name] ;
     mp[ Name ] = new  Value( x );
+}
+
+Value* Func::getptr(const std::string &nm){
+    if( nw->n_value[ nm ] ) return nw->n_value[ nm ];
+    return n_value[ nm ];
 }
 
 

@@ -252,15 +252,36 @@ antlrcpp::Any EvalVisitor::visitFactor(Python3Parser::FactorContext *ctx) {
 antlrcpp::Any EvalVisitor::visitAtom_expr(Python3Parser::Atom_exprContext *ctx) {
 	if( ctx -> trailer() ){
 		if( ctx -> atom() -> getText() == "print" ){
+			auto vct = ctx -> trailer() -> arglist() -> argument();
 			
-		}
+			if(vct.size()) return Value();
+			visit(vct[0]).as<Value>().print();
 
-		return m_func[ visit( ctx -> atom() ).as<std::string>() ] -> run( ctx -> trailer() ->arglist() );
+			for(int i = 1;i < vct.size();i ++){
+				std::cout<<' ';
+				visit( vct[i] ).as<Value>().print();
+			}
+
+			std::cout<<std::endl;
+		}
+		else if( ctx -> atom() -> getText() == "float" ){
+			return visit( ctx -> trailer() -> arglist() -> argument()[0] -> test()[0] ).as<Value>().trans_f();
+		}
+		else if( ctx -> atom() -> getText() == "int" ){
+			return visit( ctx -> trailer() -> arglist() -> argument()[0] -> test()[0] ).as<Value>().trans_i();
+		}
+		else if( ctx -> atom() -> getText() == "str" ){
+			return visit( ctx -> trailer() -> arglist() -> argument()[0] -> test()[0] ).as<Value>().trans_s();
+		}
+		else if( ctx -> atom() -> getText() == "bool" ){
+			return visit( ctx -> trailer() -> arglist() -> argument()[0] -> test()[0] ).as<Value>().trans_b();
+		}
+		else return m_func[ visit( ctx -> atom() ).as<std::string>() ] -> run( ctx -> trailer() ->arglist() );
 	}
 	else{
 		if( visit( ctx -> atom() ).is<std::string>() ){
 			std::string s=visit( ctx -> atom() ).as<std::string>();
-			if( Func::nw ->n_value[ s ] == nullptr) 
+			if( Func::nw -> getptr( s ) == nullptr) 
 				Func::nw -> add_ele( s , Value() , Func::nw->n_value);
 			
 			return *Func::nw -> n_value[ s ];
