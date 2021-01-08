@@ -215,6 +215,9 @@ antlrcpp::Any EvalVisitor::visitArith_expr(Python3Parser::Arith_exprContext *ctx
 	auto F = ctx->term();
 	auto O = ctx->addorsub_op();
 
+	if ( O.empty() )
+		return visit( F[0] );
+
 	Value ans;
 
 	ans = visit( F[0] ) . as<Value>() ;
@@ -234,6 +237,9 @@ antlrcpp::Any EvalVisitor::visitAddorsub_op(Python3Parser::Addorsub_opContext *c
 antlrcpp::Any EvalVisitor::visitTerm(Python3Parser::TermContext *ctx) {
 	auto F = ctx->factor();
 	auto O = ctx->muldivmod_op();
+
+	if( O.empty() )
+		return visit( F[0] );
 
 	Value ans;
 
