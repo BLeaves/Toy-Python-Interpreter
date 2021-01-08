@@ -1,3 +1,6 @@
+#ifndef PYTHON_INTERPRETER_I_H
+#define PYTHON_INTERPRETER_I_H
+
 #include "UI.hpp"
 
 class Value;
@@ -146,3 +149,5 @@ int I::trs()const{
     if(sign == 0) return 0 ;
     return sign * ui.trs() ;
 }
+
+#endif

@@ -1,3 +1,7 @@
+#ifndef PYTHON_INTERPRETER_TYPE_H
+#define PYTHON_INTERPRETER_TYPE_H
+
+
 #include <iostream>
 #include <cmath>
 #include "I.hpp"
@@ -239,3 +243,5 @@ Value Value::trans_s()const{
     if(tpnm == Float) return Value( std::to_string( f ) );
     return (*this);
 }
+
+#endif

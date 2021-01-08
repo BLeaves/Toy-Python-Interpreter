@@ -1,7 +1,11 @@
+#ifndef PYTHON_INTERPRETER_FUNC_H
+#define PYTHON_INTERPRETER_FUNC_H
+
+
 #include <iostream>
 #include <map>
 #include <vector>
-#include "List.cpp"
+#include "List.hpp"
 #include "Python3BaseVisitor.h"
 #include "Evalvisitor.h"
 
@@ -91,3 +95,5 @@ Func::~Func(){
     clear_mp( m_para );
     clear_mp( n_value );
 }
+
+#endif

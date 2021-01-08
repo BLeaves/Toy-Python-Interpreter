@@ -1,3 +1,7 @@
+#ifndef PYTHON_INTERPRETER_UI_H
+#define PYTHON_INTERPRETER_UI_H
+
+
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -252,3 +256,5 @@ int UI::trs()const{
 
     return ans;
 }
+
+#endif

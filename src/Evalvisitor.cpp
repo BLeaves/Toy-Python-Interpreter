@@ -1,9 +1,10 @@
 #include "Evalvisitor.h"
 #include <map>
 #include <iostream>
-#include "control.cpp"
-#include "Func.cpp"
+#include "control.hpp"
+#include "Func.hpp"
 
+std::map<std::string, Func*> EvalVisitor::m_func;
 
 antlrcpp::Any EvalVisitor::visitFile_input(Python3Parser::File_inputContext *ctx) {
 	Func::mn = new Func();
@@ -61,7 +62,7 @@ antlrcpp::Any EvalVisitor::visitExpr_stmt(Python3Parser::Expr_stmtContext *ctx) 
 			return visit( T[0] ).as<List>() %= visit( T[1] ).as<List>();
 	}
 	else{
-		if( ctx -> ASSIGN() ){
+		if( ctx -> ASSIGN() . size() ){
 			for(auto &x:T){
 				visit( x ).as<List>() = visit( T.back() ).as<List>() ;
 			}
@@ -130,7 +131,7 @@ antlrcpp::Any EvalVisitor::visitTest(Python3Parser::TestContext *ctx) {
 }
 
 antlrcpp::Any EvalVisitor::visitOr_test(Python3Parser::Or_testContext *ctx) {
-	if( ctx->OR() ){
+	if( ctx -> OR() .size() ){
 		for( auto x: ctx->and_test() )
 			if( visit(x).as<Value>().small_value() > 0.3 ) return Value( true );
 		return Value( false );
@@ -139,7 +140,7 @@ antlrcpp::Any EvalVisitor::visitOr_test(Python3Parser::Or_testContext *ctx) {
 }
 
 antlrcpp::Any EvalVisitor::visitAnd_test(Python3Parser::And_testContext *ctx) {
-	if( ctx->AND() ){
+	if( ctx -> AND() . size() ){
 		for( auto x: ctx->not_test() )
 			if( visit(x).as<Value>().small_value() < 0.8 ) return Value( false );
 		return Value( true );
@@ -158,21 +159,24 @@ antlrcpp::Any EvalVisitor::visitComparison(Python3Parser::ComparisonContext *ctx
 
 	Value ans(true);
 
-	if( O ){
+	if( O . size() ){
+		std::vector< Value > vct;
+
+		for(auto &ele:F) vct.push_back( visit( ele ).as<Value>() );
 
 		for(int i = 0;i < O.size() ;i ++ ){
 			if( (O[i] -> getText())  == "<" ) 
-				if(!( visit(F[i]).as<Value>() < visit(F[i+1]).as<Value>() ) ) return Value( false );
+				if(!( vct[i] <  vct[i+1] ) ) return Value( false );
 			if( (O[i] -> getText())  == ">" ) 
-				if(!( visit(F[i]).as<Value>() > visit(F[i+1]).as<Value>() ) ) return Value( false ); 
+				if(!( vct[i] >  vct[i+1] ) ) return Value( false ); 
 			if( (O[i] -> getText())  == "<=" ) 
-				if(!( visit(F[i]).as<Value>() <= visit(F[i+1]).as<Value>() ) ) return Value( false ); 
+				if(!( vct[i] <=  vct[i+1] ) ) return Value( false ); 
 			if( (O[i] -> getText())  == ">=" ) 
-				if(!( visit(F[i]).as<Value>() >= visit(F[i+1]).as<Value>() ) ) return Value( false ); 
+				if(!( vct[i] >=  vct[i+1] ) ) return Value( false ); 
 			if( (O[i] -> getText())  == "==" ) 
-				if(!( visit(F[i]).as<Value>() == visit(F[i+1]).as<Value>() ) ) return Value( false ); 
+				if(!( vct[i] ==  vct[i+1] ) ) return Value( false ); 
 			if( (O[i] -> getText())  == "!=" ) 
-				if(!( visit(F[i]).as<Value>() != visit(F[i+1]).as<Value>() ) ) return Value( false ); 
+				if(!( vct[i] !=  vct[i+1] ) ) return Value( false ); 
 		}
 	}
 	else  return  visit( F[0] );
@@ -257,7 +261,13 @@ antlrcpp::Any EvalVisitor::visitTrailer(Python3Parser::TrailerContext *ctx) {
 antlrcpp::Any EvalVisitor::visitAtom(Python3Parser::AtomContext *ctx) {
 	if( ctx -> NAME() ) return ctx -> getText();
 	if( ctx -> NUMBER() ) return Value( I( ctx -> getText() ) );
-	if( ctx -> STRING() ) return Value( ctx -> getText() );
+	if( ctx -> STRING().size() ) {
+		std::string s = "";
+		auto vct = ctx -> STRING() ;
+		for(auto ele:vct) s += ele->getText().substr(1, ele->getText().size() - 2);
+
+		return Value( s );
+	}
 	if( ctx -> NONE() ) return Value();
 	if( ctx -> TRUE() ) return Value(true);
 	if( ctx -> FALSE() ) return Value(false);

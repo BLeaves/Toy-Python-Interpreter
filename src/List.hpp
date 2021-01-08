@@ -1,6 +1,9 @@
+#ifndef PYTHON_INTERPRETER_LIST_H
+#define PYTHON_INTERPRETER_LIST_H
+
 #include <iostream>
 #include <vector>
-#include "Type.cpp"
+#include "Type.hpp"
 
 class List{
     friend class EvalVisitor;
@@ -74,3 +77,5 @@ public:
         delete_all();
     }
 }
+
+#endif

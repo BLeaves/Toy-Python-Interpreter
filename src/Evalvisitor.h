@@ -3,9 +3,9 @@
 
 
 #include "Python3BaseVisitor.h"
-#include "Type.cpp"
-#include "List.cpp"
-#include "Func.cpp"
+#include "Type.hpp"
+#include "List.hpp"
+#include "Func.hpp"
 
 class EvalVisitor: public Python3BaseVisitor {
     friend class Func;
