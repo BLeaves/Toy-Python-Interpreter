@@ -14,10 +14,12 @@ antlrcpp::Any EvalVisitor::visitFile_input(Python3Parser::File_inputContext *ctx
 	
 	delete Func::mn;
 	//clear m_func
+	return Value();
 }
 
 antlrcpp::Any EvalVisitor::visitFuncdef(Python3Parser::FuncdefContext *ctx) {
 	m_func[ ctx->NAME()->getText() ] = new Func( ctx );
+	return Value();
 }
 
 antlrcpp::Any EvalVisitor::visitParameters(Python3Parser::ParametersContext *ctx) {
@@ -69,6 +71,8 @@ antlrcpp::Any EvalVisitor::visitExpr_stmt(Python3Parser::Expr_stmtContext *ctx) 
 		}
 		else return visitChildren( ctx );
 	}
+
+	return Value();
 }
 
 antlrcpp::Any EvalVisitor::visitAugassign(Python3Parser::AugassignContext *ctx) {
@@ -81,16 +85,19 @@ antlrcpp::Any EvalVisitor::visitFlow_stmt(Python3Parser::Flow_stmtContext *ctx) 
 
 antlrcpp::Any EvalVisitor::visitBreak_stmt(Python3Parser::Break_stmtContext *ctx) {
 	throw Break();
+	return Value();
 }
 
 antlrcpp::Any EvalVisitor::visitContinue_stmt(Python3Parser::Continue_stmtContext *ctx) {
 	throw Continue();
+	return Value();
 }
 
 antlrcpp::Any EvalVisitor::visitReturn_stmt(Python3Parser::Return_stmtContext *ctx) {
 	if( ctx -> testlist() ) throw visit( ctx -> testlist() );
 	throw antlrcpp::Any();
 	//throw empty()?
+	return Value();
 }
 
 antlrcpp::Any EvalVisitor::visitCompound_stmt(Python3Parser::Compound_stmtContext *ctx) {
@@ -108,6 +115,7 @@ antlrcpp::Any EvalVisitor::visitIf_stmt(Python3Parser::If_stmtContext *ctx) {
 		}
 	
 	visit( S.back() );
+	return Value();
 }
 
 antlrcpp::Any EvalVisitor::visitWhile_stmt(Python3Parser::While_stmtContext *ctx) {
@@ -119,15 +127,18 @@ antlrcpp::Any EvalVisitor::visitWhile_stmt(Python3Parser::While_stmtContext *ctx
 		catch(Continue){	continue;}
 
 	}
+	return Value();
 }
 
 antlrcpp::Any EvalVisitor::visitSuite(Python3Parser::SuiteContext *ctx) {
 	if( ctx->simple_stmt() ) visitChildren(ctx);
 	for(auto ele:ctx->stmt()) visit(ele);
+	return Value();
 }
 
 antlrcpp::Any EvalVisitor::visitTest(Python3Parser::TestContext *ctx) {
 	return visitChildren(ctx);
+	return Value();
 }
 
 antlrcpp::Any EvalVisitor::visitOr_test(Python3Parser::Or_testContext *ctx) {
@@ -145,7 +156,7 @@ antlrcpp::Any EvalVisitor::visitAnd_test(Python3Parser::And_testContext *ctx) {
 			if( visit(x).as<Value>().small_value() < 0.8 ) return Value( false );
 		return Value( true );
 	}
-	else return visitChildren(ctx);
+	return visitChildren(ctx);
 }
 
 antlrcpp::Any EvalVisitor::visitNot_test(Python3Parser::Not_testContext *ctx) {
@@ -240,6 +251,10 @@ antlrcpp::Any EvalVisitor::visitFactor(Python3Parser::FactorContext *ctx) {
 
 antlrcpp::Any EvalVisitor::visitAtom_expr(Python3Parser::Atom_exprContext *ctx) {
 	if( ctx -> trailer() ){
+		if( ctx -> atom() -> getText() == "print" ){
+			
+		}
+
 		return m_func[ visit( ctx -> atom() ).as<std::string>() ] -> run( ctx -> trailer() ->arglist() );
 	}
 	else{

@@ -6,6 +6,7 @@
 using namespace antlr4;
 //todo: regenerating files in directory named "generated" is dangerous.
 //       if you really need to regenerate,please ask TA for help.
+EvalVisitor visitor;
 int main(int argc, const char* argv[]){
     //todo:please don't modify the code below the construction of ifs if you want to use visitor mode
     ANTLRInputStream input(std::cin);
@@ -14,7 +15,6 @@ int main(int argc, const char* argv[]){
     tokens.fill();
     Python3Parser parser(&tokens);
     tree::ParseTree* tree=parser.file_input();
-    EvalVisitor visitor;
     visitor.visit(tree);
     return 0;
 }

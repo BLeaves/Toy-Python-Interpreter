@@ -1,18 +1,17 @@
 #ifndef PYTHON_INTERPRETER_TYPE_H
 #define PYTHON_INTERPRETER_TYPE_H
 
-
 #include <iostream>
 #include <cmath>
 #include "I.hpp"
 
 class Value{
-public:
+
 enum Typename{None,Bool,Int,Float,Str};
 
-static constexpr double exp=1e-16;
+static const double exp=1e-6;
 
-public:
+private:
     Typename tpnm;
     bool b;
     I *pi;
@@ -28,17 +27,19 @@ public:
         while(times--){ ans += (*ps);}
 
         return ans;
-    }
+    }  
 
     int comp(const Value &rhs)const;
-    double small_value()const;
+    
 
 public:
+    double small_value()const;
+
     Value():tpnm(None){    clear_ptr();}
-    Value(bool bl):tpnm(Bool),b(bl), f(){    clear_ptr();}
-    Value(const I &it):tpnm(Int), b(), f(){   clear_ptr();    pi=new I(it);}
-    Value(double fl):tpnm(Float),b(), f(fl){    clear_ptr();}
-    Value(const std::string &str):tpnm(Str), b(), f(){   clear_ptr();    ps=new std::string(str);}
+    Value(bool bl):tpnm(Bool),b(bl){    clear_ptr();}
+    Value(const I &it):tpnm(Int){   clear_ptr();    pi=new I(it);}
+    Value(double fl):tpnm(Float),f(fl){    clear_ptr();}
+    Value(const std::string &str):tpnm(Str){   clear_ptr();    ps=new std::string(str);}
     Value(const Value &vl):tpnm(vl.tpnm),b(vl.b),f(vl.f){
         clear_ptr();
         if(tpnm == Int) pi=new I(* (vl.pi) );
@@ -62,7 +63,7 @@ public:
     Value &divide_e(const Value &rhs);
     Value &operator%=(const Value &rhs);
 
-    bool operator!()const;
+    Value operator!()const;
 
     bool operator<(const Value &rhs)const;
     bool operator>(const Value &rhs)const;
@@ -76,6 +77,8 @@ public:
     Value trans_f()const;
     Value trans_s()const;
 
+    void print()const;
+
     ~Value(){   delete_ptr();}
 };
 
@@ -87,14 +90,15 @@ int Value::comp(const Value &rhs)const{
         if( (*ps) < (* (rhs.ps) ) ) return -1;
         return 1;
     }
-    if(tpnm == Float || rhs.tpnm == Float ){
-        double x1=small_value(),x2=rhs.small_value();
-        if( fabs(x1-x2) < exp ) return 0;
-        return x1 < x2 ? (-1) : 1 ;
+    if(tpnm == rhs.tpnm && tpnm == Int ) return pi->comp( *(rhs.pi) );
+    if(tpnm == Int || rhs.tpnm == Int ){
+        int tmp= trans_i().pi->comp( * (rhs.trans_i().pi) ) ;
+        if(tmp!=0) return tmp;
     }
-
-    int tmp= trans_i().pi->comp( * (rhs.trans_i().pi) ) ;
-    return tmp;
+    
+    double x1=small_value(),x2=rhs.small_value();
+    if( fabs(x1-x2) < exp ) return 0;
+    return x1 < x2 ? (-1) : 1 ;
 }
 
 double Value::small_value()const{
@@ -120,7 +124,7 @@ Value& Value::operator=(const Value &vl){
 Value Value::operator+(const Value &rhs)const{
     if( tpnm == Str ) return Value( (*ps) + (* (rhs.ps) ) );
     if( tpnm == Float || rhs.tpnm == Float ) return Value( small_value() + rhs.small_value() );
-
+    
     Value ans=trans_i();
     (* ans.pi) = (* ans.pi) + (* rhs.trans_i().pi) ;
     return ans;
@@ -128,19 +132,19 @@ Value Value::operator+(const Value &rhs)const{
 
 Value Value::operator-(const Value &rhs)const{
     if( tpnm == Float || rhs.tpnm == Float ) return Value( small_value() - rhs.small_value() );
-
+    
     Value ans=trans_i();
     (* ans.pi) = (* ans.pi) - (* rhs.trans_i().pi) ;
     return ans;
 }
-
+    
 Value Value::operator*(const Value &rhs)const{
     if( tpnm == Str ) return Value( *this ).mtpl_s( rhs.small_value() );
     if( rhs.tpnm == Str ) return Value( rhs ).mtpl_s( small_value() );
-
-    if( tpnm == Float || rhs.tpnm == Float )
+    
+    if( tpnm == Float || rhs.tpnm == Float ) 
         return Value( small_value() * rhs.small_value() );
-
+    
     Value ans=trans_i();
     (* ans.pi) = (* ans.pi) * (* rhs.trans_i().pi) ;
     return ans;
@@ -152,7 +156,7 @@ Value Value::operator/(const Value &rhs)const{
 
 Value Value::divide(const Value &rhs)const{
     Value ans= this->trans_i();
-    (*ans.pi) = (*ans.pi)/(*(rhs.trans_i().pi));
+    (*ans.pi) = (*ans.pi)/(*rhs.pi);
     return ans;
 }
 
@@ -188,8 +192,8 @@ Value&  Value::operator%=(const Value &rhs){
 
 //<-------------------------------->
 
-bool Value:: operator!()const{
-    return ( ! trans_b().b) ;
+Value Value:: operator!()const{
+    return Value( ! trans_b().b) ;
 }
 
 bool Value:: operator<(const Value &rhs)const{
@@ -219,8 +223,9 @@ bool Value:: operator!=(const Value &rhs)const{
 Value Value::trans_b()const{
     if(tpnm == Bool) return (*this);
     if(tpnm == Int) return Value( pi->sign != 0 );
-    if(tpnm == Float) return Value( fabs(f) > exp );
-    return Value( (*ps) != "" );
+    if(tpnm == Float) return Value( fabs(f) < exp );
+    if(tpnm == None) return Value( false );
+    return Value( (*ps) == "" );
 }
 
 Value Value::trans_i()const{
@@ -238,10 +243,18 @@ Value Value::trans_f()const{
 }
 
 Value Value::trans_s()const{
-    if(tpnm == Bool) return Value( b ? std::string("True") : std::string("False") );
+    if(tpnm == Bool) return Value( b ? "True" : "False" );
     if(tpnm == Int) return Value( std::to_string( pi->trs() ) );
     if(tpnm == Float) return Value( std::to_string( f ) );
+    if(tpnm == None) return Value( "None" );
     return (*this);
+}
+
+void Value::print()const{
+    if(tpnm == Bool) printf( b ? "True " : "False " );
+    if(tpnm == Int)  std::cout << pi -> str() << ' ';
+    if(tpnm == Float) std::cout << std::to_string( small_value() ) << ' ';
+    if(tpnm == Str) std::cout << (*ps) <<' ';
 }
 
 #endif

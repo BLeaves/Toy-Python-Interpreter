@@ -7,9 +7,10 @@
 #include <vector>
 #include "List.hpp"
 #include "Python3BaseVisitor.h"
-#include "Evalvisitor.h"
+// #include "Evalvisitor.h"
 
-
+class EvalVisitor;
+extern EvalVisitor visitor;
 
 class Func{
     friend class EvalVisitor;
@@ -54,14 +55,12 @@ antlrcpp::Any Func::run( Python3Parser::ArglistContext *ctx_al ){
     nw = this;
 
     //init n_value
-    auto a=tx_al -> argument();
-    if(ctx_al -> COMMA()) a = c;
-    else a.push_back( ctx_al -> argument() );
+    auto a=ctx_al -> argument();
     //
     for(auto x:m_para)
         n_value[ x.first ] = new Value( *x.second );
     
-    if(a[0] -> ASSIGN()){
+    if(a[0] -> ASSIGN() ){
         for(auto x:a){
             add_ele( x->test()[0]->getText() , EvalVisitor().visit( x->test()[1] ).as<Value>() , n_value );
         }
@@ -69,20 +68,20 @@ antlrcpp::Any Func::run( Python3Parser::ArglistContext *ctx_al ){
     else{
         auto nm = ctx->parameters()->typedargslist()->tfpdef();
         for(int i = 0;i < a.size() ; i ++ ){
-           add_ele( nm[i]->getText() , EvalVisitor().visit( a[i]->test() ).as<Value>() , n_value );
+           add_ele( nm[i]->getText() , EvalVisitor().visit( a[i]->test()[0] ).as<Value>() , n_value );
         } 
     }
 
 
     try{
-        EvalVisitor().visit( ctx -> suite() );
+        visitor.visit( ctx -> suite() );
     }
     catch(antlrcpp::Any &x){
         clear_mp( n_value );
         nw = mn;
         return x;
     }
-    return ;
+    return Value();
 }
 
 void Func::add_ele(const std::string &Name, const Value &x , std::map< std::string , Value* > &mp){

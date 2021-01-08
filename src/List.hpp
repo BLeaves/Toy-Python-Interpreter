@@ -76,6 +76,6 @@ public:
     ~List(){
         delete_all();
     }
-}
+};
 
 #endif
