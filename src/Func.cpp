@@ -1,6 +1,9 @@
 #include "Func.hpp"
 #include "Evalvisitor.h"
 
+Func* Func::nw;
+Func* Func::mn;
+
 extern EvalVisitor visitor;
 
 Func::Func(Python3Parser::FuncdefContext*  _ctx):ctx(_ctx){
