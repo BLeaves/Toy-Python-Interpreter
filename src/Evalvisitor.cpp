@@ -184,9 +184,11 @@ antlrcpp::Any EvalVisitor::visitComparison(Python3Parser::ComparisonContext *ctx
 	if( O . size() ){
 		std::vector< Value > vct;
 
-		for(auto &ele:F) vct.push_back( visit( ele ).as<Value>() );
+		vct.push_back( visit( F[0] ).as<Value>() );
 
 		for(int i = 0;i < O.size() ;i ++ ){
+			vct.push_back( visit( F[i+1] ).as<Value>() );
+
 			if( (O[i] -> getText())  == "<" )
 				if(!( vct[i] <  vct[i+1] ) ) return Value( false );
 			if( (O[i] -> getText())  == ">" )
