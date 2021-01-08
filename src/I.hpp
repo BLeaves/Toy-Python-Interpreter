@@ -20,8 +20,8 @@ public:
 
     I(const std::string &num);
 
-    bool operator==(const I &x) ;
-    bool operator!=(const I &x) ;
+    bool operator==(const I &x) const;
+    bool operator!=(const I &x) const;
     bool operator<(const I &x) ;
     bool operator>(const I &x) ;
     bool operator<=(const I &x) ;
@@ -37,7 +37,7 @@ public:
 
     //<-------------------------->
 
-    std::string str();
+    std::string str() const;
     int trs()const;
 };
 
