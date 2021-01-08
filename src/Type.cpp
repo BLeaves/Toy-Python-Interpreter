@@ -146,7 +146,7 @@ Value Value::trans_b()const{
     if(tpnm == Int) return Value( *pi != I() );
     if(tpnm == Float) return Value( fabs(f) < exp );
     if(tpnm == None) return Value( false );
-    return Value( (*ps) == "" );
+    return Value( (*ps) != "" );
 }
 
 Value Value::trans_i()const{
