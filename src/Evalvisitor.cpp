@@ -111,7 +111,7 @@ antlrcpp::Any EvalVisitor::visitIf_stmt(Python3Parser::If_stmtContext *ctx) {
 
 	for(int i = 0;i < T.size() ;i ++ )
 		if( visit( T[i] ).as<Value>().small_value() > 0.5 ){
-			visit( S[i] ); return;
+			visit( S[i] ); return Value();
 		}
 	
 	visit( S.back() );
