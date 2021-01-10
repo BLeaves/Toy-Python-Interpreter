@@ -23,14 +23,16 @@ I::I(const std::string &num){
     check();
 }
 
-bool I::operator==(const I &x) {
-    check();
-    return sign==x.sign && ui==x.ui ;
+bool I::operator==(const I &x) const {
+    return str() == x.str();
+    // check();
+    // return sign==x.sign && ui==x.ui ;
 }
 
-bool I::operator!=(const I &x) {
-    check();
-    return sign!=x.sign || ui!=x.ui;
+bool I::operator!=(const I &x) const {
+    return str() != x.str();
+    // check();
+    // return sign!=x.sign || ui!=x.ui;
 }
 
 bool I::operator<(const I &x) {
@@ -109,7 +111,7 @@ I I::operator%(const I &x) {
     return ans;
 }
 
-std::string I::str(){
+std::string I::str() const {
     if(ui==UI("0")) return "0";
 
     std::string ans="";

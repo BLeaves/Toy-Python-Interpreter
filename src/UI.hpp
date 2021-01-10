@@ -20,8 +20,8 @@ public:
     UI(const UI &x) = default;
     UI(const std::string &num);
 
-    bool operator==(const UI &x) ;
-    bool operator!=(const UI &x) ;
+    bool operator==(const UI &x) const;
+    bool operator!=(const UI &x) const;
     bool operator<(const UI &x) ;
     bool operator>(const UI &x) ;
     bool operator<=(const UI &x) ;
@@ -34,7 +34,7 @@ public:
     UI operator-(const UI &x) ;
     UI operator*(const int &x) ;
     UI operator*(const UI &x) ;
-    UI operator/( UI x) ;
+    UI operator/(const UI &x) ;
     UI operator%(const UI &x) ;
 
     //<-------------------------->

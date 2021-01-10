@@ -17,18 +17,18 @@ UI::UI(const std::string &num){
     clear_0();
 }
 
-bool UI::operator==(const UI &x) {
-    clear_0();
-    if( v.size() != x.v.size() ) return 0;
+bool UI::operator==(const UI &x) const{
+    return str() == x.str();
+    // clear_0();
+    // if( v.size() != x.v.size() ) return 0;
 
-    for(int i=0;i<v.size();i++)
-        if(v[i]!=x.v[i]) return 0;
+    // for(int i=0;i<v.size();i++)
+    //     if(v[i]!=x.v[i]) return 0;
 
-    return 1;
+    // return 1;
 }
 
-bool UI::operator!=(const UI &x) {
-    clear_0();
+bool UI::operator!=(const UI &x) const{
     return !((*this)==x);
 }
 
@@ -173,7 +173,7 @@ UI UI::operator*(const UI &x) {
 
 UI UI::operator/(const UI &x) {
     clear_0();
-    UI ans,A = *this;
+    UI ans,A;
 
     for(int i=(int)v.size() - 1 ; i>=0 ; i-- ){
         A.v.insert(A.v.begin(), v[i]);
@@ -194,7 +194,7 @@ UI UI::operator/(const UI &x) {
 
 UI UI::operator%(const UI &x) {
     clear_0();
-    UI ans = *this;
+    UI ans;
 
     for(int i=(int)v.size() - 1 ; i>=0 ; i-- ){
         ans.v.insert(ans.v.begin(), v[i]);
@@ -213,7 +213,9 @@ void UI::clear_0(){
 std::string UI::str()const{
     std::string ans="";
 
-    for(auto i=v.rbegin() ; i!=v.rend() ; i++)
+    auto i=v.rbegin();
+    for(; i != v.rend() and *i == 0; ++i);
+    for(; i != v.rend(); i++)
         ans.push_back('0'+(*i));
 
     return ans;

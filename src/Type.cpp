@@ -6,6 +6,7 @@ int Value::comp(const Value &rhs)const{
         if( tpnm == rhs.tpnm ) return 0;
         else return 1;
     }
+    if( tpnm == Str ^ rhs.tpnm == Str) return 1;
     if( tpnm == Str ){
         if( (*ps) == (* (rhs.ps) ) ) return 0;
         if( (*ps) < (* (rhs.ps) ) ) return -1;
@@ -146,7 +147,7 @@ Value Value::trans_b()const{
     if(tpnm == Int) return Value( *pi != I() );
     if(tpnm == Float) return Value( fabs(f) < exp );
     if(tpnm == None) return Value( false );
-    return Value( (*ps) == "" );
+    return Value( (*ps) != "" );
 }
 
 Value Value::trans_i()const{

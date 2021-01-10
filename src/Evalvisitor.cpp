@@ -215,6 +215,9 @@ antlrcpp::Any EvalVisitor::visitArith_expr(Python3Parser::Arith_exprContext *ctx
 	auto F = ctx->term();
 	auto O = ctx->addorsub_op();
 
+	if ( O.empty() )
+		return visit( F[0] );
+
 	Value ans;
 
 	ans = visit( F[0] ) . as<Value>() ;
@@ -234,6 +237,9 @@ antlrcpp::Any EvalVisitor::visitAddorsub_op(Python3Parser::Addorsub_opContext *c
 antlrcpp::Any EvalVisitor::visitTerm(Python3Parser::TermContext *ctx) {
 	auto F = ctx->factor();
 	auto O = ctx->muldivmod_op();
+
+	if( O.empty() )
+		return visit( F[0] );
 
 	Value ans;
 
@@ -263,14 +269,14 @@ antlrcpp::Any EvalVisitor::visitAtom_expr(Python3Parser::Atom_exprContext *ctx) 
 	if( ctx -> trailer() ){
 		if( ctx -> atom() -> getText() == "print" ){
 			auto arglist = ctx -> trailer() -> arglist();
-			if(arglist == nullptr) return Value();
+			if(arglist != nullptr) {
+				auto vct = arglist -> argument();
+				visit(vct[0]).as<Value>().print();
 
-			auto vct = arglist -> argument();
-			visit(vct[0]).as<Value>().print();
-
-			for(int i = 1;i < vct.size();i ++){
-				std::cout<<' ';
-				visit( vct[i] ).as<Value>().print();
+				for(int i = 1;i < vct.size();i ++){
+					std::cout<<' ';
+					visit( vct[i] ).as<Value>().print();
+				}
 			}
 
 			std::cout<<std::endl;
@@ -303,7 +309,12 @@ antlrcpp::Any EvalVisitor::visitTrailer(Python3Parser::TrailerContext *ctx) {
 antlrcpp::Any EvalVisitor::visitAtom(Python3Parser::AtomContext *ctx) {
 	// printf("visitatom: %s\n", ctx->getText().c_str());
 	if( ctx -> NAME() ) return Value( *(Func::nw->getptr(ctx -> getText())) );
-	if( ctx -> NUMBER() ) return Value( I( ctx -> getText() ) );
+	if( ctx -> NUMBER() ) {
+		std::string str = ctx->getText();
+		if( str.find('.') == str.npos )
+			return Value( I( str ) );
+		return Value( std::stod(str) );
+	}
 	if( ctx -> STRING().size() ) {
 		std::string s = "";
 		auto vct = ctx -> STRING() ;
