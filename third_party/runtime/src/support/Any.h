@@ -148,8 +148,10 @@ private:
 
     auto derived = dynamic_cast<Derived<T>*>(_ptr);
 
-    if (checkCast && !derived)
+    if (checkCast && !derived) {
+      std::cout << "cast to " << typeid(U).name() << '\n';
       throw std::bad_cast();
+    }
 
     return derived;
   }

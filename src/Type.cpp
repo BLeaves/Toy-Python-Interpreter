@@ -6,6 +6,7 @@ int Value::comp(const Value &rhs)const{
         if( tpnm == rhs.tpnm ) return 0;
         else return 1;
     }
+    if( tpnm == Str ^ rhs.tpnm == Str) return 1;
     if( tpnm == Str ){
         if( (*ps) == (* (rhs.ps) ) ) return 0;
         if( (*ps) < (* (rhs.ps) ) ) return -1;
